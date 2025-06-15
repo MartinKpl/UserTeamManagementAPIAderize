@@ -90,6 +90,6 @@ As a final remark, I'm up to explaining any part of the code I wrote, despite my
 
 ## Documentation Used
 
-* https://symfony.com/doc/current/doctrine.html#fetching-objects-from-the-database
-* https://symfony.com/doc/current/controller.html#mapping-query-parameters-individually
+* https://symfony.com/doc/current/doctrine.html
+* https://symfony.com/doc/current/controller.html
 * https://symfony.com/bundles/NelmioApiDocBundle/current/index.html
