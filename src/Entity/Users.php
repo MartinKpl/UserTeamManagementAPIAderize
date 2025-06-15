@@ -78,6 +78,7 @@ class Users implements JsonSerializable
             'id'    => $this->getId(),
             'name'  => $this->getName(),
             'email' => $this->getEmail(),
+            'userTeams' => $this->getUserTeams()->toArray(),
         ];
     }
 
