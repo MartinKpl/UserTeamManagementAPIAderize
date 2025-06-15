@@ -6,9 +6,10 @@ use App\Repository\UsersTeamsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: UsersTeamsRepository::class)]
-class UsersTeams
+class UsersTeams implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -99,5 +100,18 @@ class UsersTeams
         $this->role = $role;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $user = $this->user_id->first();
+        $team = $this->team_id->first();
+
+        return [
+            'id'      => $this->getId(),
+            'role'    => $this->getRole(),
+            'user_id' => $user ? $user->getId() : null,
+            'team_id' => $team ? $team->getId() : null,
+        ];
     }
 }

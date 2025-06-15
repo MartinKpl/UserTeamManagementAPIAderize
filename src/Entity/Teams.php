@@ -75,7 +75,7 @@ class Teams implements JsonSerializable
             'id'    => $this->getId(),
             'name'  => $this->getName(),
             'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
-            'teamsUsers' => $this->getTeamsUsers()
+            'teamsUsers' => $this->getTeamsUsers()->toArray()
         ];
     }
 
