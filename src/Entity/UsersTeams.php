@@ -110,8 +110,16 @@ class UsersTeams implements JsonSerializable
         return [
             'id'      => $this->getId(),
             'role'    => $this->getRole(),
-            'user_id' => $user ? $user->getId() : null,
-            'team_id' => $team ? $team->getId() : null,
+            'user_id' => [
+                'id'    => $user->getId(),
+                'name'  => $user->getName(),
+                'email' => $user->getEmail(),
+            ],
+            'team_id' => [
+                'id'    => $team->getId(),
+                'name'  => $team->getName(),
+                'created_at' => $team->getCreatedAt()->format('Y-m-d H:i:s'),
+            ]
         ];
     }
 }
