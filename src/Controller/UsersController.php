@@ -8,27 +8,48 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class UsersController extends AbstractController
 {
     #[Route('/api/users', name: 'get_users', methods: ['GET'])]
-    public function getUsers(EntityManagerInterface $entityManager): JsonResponse
+    public function getUsers(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $users = $entityManager->getRepository(Users::class)->findAll();
+        $name = $request->query->get('name');
+        $email = $request->query->get('email');
 
-        /*
-         * In case you only want user basic details (without teams field) uncomment this code
-        $users = array_map(function ($user) {
-            return [
-                'id'    => $user->getId(),
-                'name'  => $user->getName(),
-                'email' => $user->getEmail(),
-            ];
-        }, $users);
-        */
+        if(!$name and !$email) {
+            $users = $entityManager->getRepository(Users::class)->findAll();
 
-        return new JsonResponse($users, 200);
+            /*
+             * In case you only want user basic details (without teams field) uncomment this code
+            $users = array_map(function ($user) {
+                return [
+                    'id'    => $user->getId(),
+                    'name'  => $user->getName(),
+                    'email' => $user->getEmail(),
+                ];
+            }, $users);
+            */
+
+            return new JsonResponse($users, 200);
+        }else{
+            $user = null;
+            if ($email) {
+                $user = $entityManager->getRepository(Users::class)->findUserByEmail($email);
+            }else if ($name) {
+                $user = $entityManager->getRepository(Users::class)->findUserByLikeName($name);
+            }
+
+            if (!$user) {
+                throw $this->createNotFoundException(
+                    'User not found by ' . ($email ? "email " . $email : "name " . $name)
+                );
+            }
+
+            return new JsonResponse(["message" => "Through email name", "user" => $user]);
+        }
     }
 
     #[Route('/api/users', name: 'create_user', methods: ['POST'])]
@@ -67,6 +88,25 @@ final class UsersController extends AbstractController
 
         return new JsonResponse($user);
     }
+
+//    #[Route('/api/users', name: 'get_user', methods: ['GET'])]
+//    public function getUserByEmailOrName(EntityManagerInterface $entityManager, #[MapQueryParameter] string $name, #[MapQueryParameter] string $email): JsonResponse
+//    {
+//        $user = null;
+//        if ($email) {
+//            $user = $entityManager->getRepository(Users::class)->findOneBy(['email' => $email]);
+//        }else if ($name) {
+//            $user = $entityManager->getRepository(Users::class)->findOneBy(['name' => $name]);
+//        }
+//
+//        if (!$user) {
+//            throw $this->createNotFoundException(
+//                'User not found'
+//            );
+//        }
+//
+//        return new JsonResponse(["message" => "Through email name", "user" => $user]);
+//    }
 
     #[Route('/api/users/{id}', name: 'update_user', methods: ['PUT'])]
     public function updateUser(Request $request, EntityManagerInterface $entityManager, int $id): JsonResponse
