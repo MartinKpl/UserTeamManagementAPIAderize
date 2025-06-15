@@ -12,9 +12,17 @@ use Symfony\Component\Routing\Attribute\Route;
 final class TeamsController extends AbstractController
 {
     #[Route('/api/teams', name: 'get_teams', methods: ['GET'])]
-    public function getTeams(EntityManagerInterface $entityManager): JsonResponse
+    public function getTeams(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $teams = $entityManager->getRepository(Teams::class)->findAll();
+        $page = $request->query->get('page', 1);
+        $page = $page < 1 ? 1 : $page;
+
+        $limit = $request->query->get('limit', 10);
+        $limit = $limit < 1 ? 1 : $limit;
+
+        $offset = ($page - 1) * $limit;
+
+        $teams = $entityManager->getRepository(Teams::class)->findBy([], null, $limit, $offset);
 
         /*
          * In case you only want team basic details (without users field) uncomment this code
@@ -27,7 +35,11 @@ final class TeamsController extends AbstractController
         }, $teams);
         */
 
-        return new JsonResponse($teams, 200);
+        return new JsonResponse([
+            "data" => $teams,
+            "page" => $page,
+            "limit" => $limit
+        ], 200);
     }
 
     #[Route('/api/teams', name: 'create_team', methods: ['POST'])]

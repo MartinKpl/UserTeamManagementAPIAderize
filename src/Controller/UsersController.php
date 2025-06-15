@@ -20,7 +20,15 @@ final class UsersController extends AbstractController
         $email = $request->query->get('email');
 
         if(!$name and !$email) {
-            $users = $entityManager->getRepository(Users::class)->findAll();
+            $page = $request->query->get('page', 1);
+            $page = $page < 1 ? 1 : $page;
+
+            $limit = $request->query->get('limit', 10);
+            $limit = $limit < 1 ? 1 : $limit;
+
+            $offset = ($page - 1) * $limit;
+
+            $users = $entityManager->getRepository(Users::class)->findBy([], null, $limit, $offset);
 
             /*
              * In case you only want user basic details (without teams field) uncomment this code
@@ -33,7 +41,11 @@ final class UsersController extends AbstractController
             }, $users);
             */
 
-            return new JsonResponse($users, 200);
+            return new JsonResponse([
+                "data" => $users,
+                "page" => $page,
+                "limit" => $limit
+            ], 200);
         }else{
             $user = null;
             if ($email) {
@@ -48,7 +60,7 @@ final class UsersController extends AbstractController
                 );
             }
 
-            return new JsonResponse(["message" => "Through email name", "user" => $user]);
+            return new JsonResponse(["data" => $user]); //to preserve a little bit the structure of the response in case no email or name are provided through query
         }
     }
 
