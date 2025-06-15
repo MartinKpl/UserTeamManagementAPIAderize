@@ -61,7 +61,7 @@ final class UsersController extends AbstractController
 
         if (!$user) {
             throw $this->createNotFoundException(
-                'No user found for id '.$id
+                'No user found for id '. $id
             );
         }
 
@@ -81,7 +81,7 @@ final class UsersController extends AbstractController
 
         if (!$user) {
             throw $this->createNotFoundException(
-                'No user found for id '.$id
+                'No user found for id '. $id
             );
         }
 
